@@ -107,7 +107,7 @@ if ($LASTEXITCODE -ne 0) {
 } else {
     Write-Host "  Network already exists" -ForegroundColor Green
 }
-docker compose `
+docker compose --project-name safety-watcher `
     -f docker-compose.yaml `
     -f monitoring/docker-compose.monitoring.yml `
     -f monitoring/docker-compose.nats-monitor.yml `

@@ -1,0 +1,32 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+
+# ── Scrape targets ─────────────────────────────────────────────
+scrape_configs:
+
+  # Gateway — FastAPI /metrics endpoint (request rate, latency, errors)
+  - job_name: 'gateway'
+    static_configs:
+      - targets: ['gateway:8000']
+    metrics_path: '/metrics'
+
+  # cAdvisor — per-container CPU, RAM, network, restarts
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # NATS — uses prometheus-nats-exporter sidecar (added in docker-compose.monitoring.yml)
+  - job_name: 'nats'
+    static_configs:
+      - targets: ['nats-exporter:7777']
+
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # NVIDIA GPU exporter (only active when --profile gpu is used)
+  - job_name: 'nvidia-gpu'
+    static_configs:
+      - targets: ['nvidia-exporter:9835']

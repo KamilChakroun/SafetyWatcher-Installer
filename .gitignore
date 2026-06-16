@@ -1,0 +1,5 @@
+# Docker image tarballs — too large for git (add to releases or distribute separately)
+images/*.tar
+
+# Runtime environment — contains secrets, generated per-deployment
+.env

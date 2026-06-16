@@ -1,0 +1,191 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: Safety Watcher Alerts
+    folder: Safety Watcher
+    interval: 1m
+    rules:
+
+      # ── Container down alerts ────────────────────────────────
+      - uid: container-gateway-down
+        title: Gateway is down
+        condition: A
+        for: 1m
+        annotations:
+          summary: "Gateway container is not running"
+          description: "The API Gateway has been down for more than 1 minute."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                absent(container_last_seen{name="safety-watcher-gateway-1"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+      - uid: container-reader-down
+        title: Reader is down
+        condition: A
+        for: 2m
+        annotations:
+          summary: "Reader container is not running"
+          description: "The Reader (RTSP capture) has been down for more than 2 minutes."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                absent(container_last_seen{name="Reader"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+      - uid: container-inference-down
+        title: Inference is down
+        condition: A
+        for: 2m
+        annotations:
+          summary: "Inference container is not running"
+          description: "The Inference (YOLO detection) has been down for more than 2 minutes."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                absent(container_last_seen{name="Inference"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+      - uid: container-streamer-down
+        title: Streamer is down
+        condition: A
+        for: 2m
+        annotations:
+          summary: "Streamer container is not running"
+          description: "The WebSocket Streamer has been down for more than 2 minutes."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                absent(container_last_seen{name="Streamer"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+      - uid: container-historymanager-down
+        title: History Manager is down
+        condition: A
+        for: 2m
+        annotations:
+          summary: "History Manager container is not running"
+          description: "The History Manager (detection event storage) has been down for more than 2 minutes. Detection history will not be recorded."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                absent(container_last_seen{name="safety-watcher-historymanager-1"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+      - uid: container-minio-down
+        title: MinIO is down
+        condition: A
+        for: 2m
+        annotations:
+          summary: "MinIO container is not running"
+          description: "MinIO (detection frame storage) has been down for more than 2 minutes. New detection frames cannot be saved and history images will not load."
+        labels:
+          severity: critical
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                absent(container_last_seen{name="safety-watcher-minio-1"})
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+      # ── High API error rate ──────────────────────────────────
+      - uid: api-high-error-rate
+        title: High API error rate
+        condition: A
+        for: 2m
+        annotations:
+          summary: "API error rate above 10%"
+          description: "More than 10% of API requests are returning errors."
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                (
+                  sum(rate(http_requests_total{status=~"4..|5.."}[5m]))
+                  /
+                  sum(rate(http_requests_total[5m]))
+                ) > 0.1
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+      # ── Container restart loop ───────────────────────────────
+      - uid: container-restart-loop
+        title: Container restarting repeatedly
+        condition: A
+        for: 5m
+        annotations:
+          summary: "Container is restarting repeatedly"
+          description: "A container has restarted more than 3 times in the last 10 minutes."
+        labels:
+          severity: warning
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 600
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: >
+                increase(container_start_time_seconds{name!=""}[10m]) > 3
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200

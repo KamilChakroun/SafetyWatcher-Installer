@@ -1,0 +1,217 @@
+# ================================================================
+#  Surveillance System — unified docker-compose
+#
+#  Images pulled from GitHub Container Registry (ghcr.io).
+#  Private images — login required on each machine:
+#    echo YOUR_PAT | docker login ghcr.io -u YOUR_GITHUB_USERNAME --password-stdin
+#
+#  First time setup:
+#    cp .env.dev .env      (or .env.prod for production)
+#    docker-compose up -d
+#
+#  Update to latest images:
+#    docker-compose pull
+#    docker-compose up -d
+# ================================================================
+
+services:
+
+  # ── Frontend ──────────────────────────────────────────────────
+  frontend:
+    image: ghcr.io/sirussnitch/safety-watcher-frontend:latest
+    build:
+      context: ./frontend
+      args:
+        VITE_WS_URL: ws://localhost/ws
+        VITE_API_URL: "/api"
+        VITE_HISTORY_URL: "/api/history"
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    depends_on:
+      - gateway
+
+  # ── API Gateway ───────────────────────────────────────────────
+  gateway:
+    image: ghcr.io/sirussnitch/safety-watcher-gateway:latest
+    command: uvicorn gateway:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+    ports:
+      - "8500:8000"
+    environment:
+      SECRET_KEY:          ${SECRET_KEY}
+      ALGORITHM:           ${ALGORITHM}
+      USER_SERVICE_URL:    http://usermanager:8001
+      CAM_SERVICE_URL:     http://cammanager:8002
+      HISTORY_SERVICE_URL: http://historymanager:8003
+      ALLOWED_ORIGINS:     ${ALLOWED_ORIGINS}
+      STREAMER_URLS:       ${STREAMER_URLS}
+      METRICS_TOKEN:       ${METRICS_TOKEN}
+    depends_on:
+      - usermanager
+      - cammanager
+      - historymanager
+
+  # ── User Manager ──────────────────────────────────────────────
+  usermanager:
+    image: ghcr.io/sirussnitch/safety-watcher-usermanager:latest
+    command: uvicorn UserManager:app --host 0.0.0.0 --port 8001
+    restart: unless-stopped
+    environment:
+      MONGO_URI:                   mongodb://mongo_user:27017
+      SECRET_KEY:                  ${SECRET_KEY}
+      ALGORITHM:                   ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      CAM_SERVICE_URL:             http://cammanager:8002
+    depends_on:
+      mongo_user:
+        condition: service_healthy
+
+  # ── Camera Manager ────────────────────────────────────────────
+  cammanager:
+    image: ghcr.io/sirussnitch/safety-watcher-cammanager:latest
+    command: uvicorn CamManager:app --host 0.0.0.0 --port 8002
+    restart: unless-stopped
+    environment:
+      MONGO_URI: mongodb://mongo_cam:27017
+    depends_on:
+      mongo_cam:
+        condition: service_healthy
+
+  # ── MongoDB — users ───────────────────────────────────────────
+  mongo_user:
+    image: mongo:8
+    restart: unless-stopped
+    volumes:
+      - mongo_user_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # ── MongoDB — cameras ─────────────────────────────────────────
+  mongo_cam:
+    image: mongo:8
+    restart: unless-stopped
+    volumes:
+      - mongo_cam_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "--quiet"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # ── NATS — message broker ─────────────────────────────────────
+  nats:
+    image: nats:latest
+    container_name: nats
+    restart: unless-stopped
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: ["--http_port", "8222"]
+
+  # ── Reader — RTSP capture → NATS ──────────────────────────────
+  reader:
+    image: ghcr.io/sirussnitch/safety-watcher-reader:latest
+    container_name: Reader
+    restart: unless-stopped
+    environment:
+      NATS_URL:           nats://nats:4222
+      MONGO_URI:          mongodb://mongo_cam:27017
+      MONGO_DB:           ${MONGO_CAM_DB}
+      MONGO_COLL:         ${MONGO_CAM_COLL}
+      READER_FPS:         ${READER_FPS:-2}
+      GST_PLUGIN_SCANNER: /dev/null
+      GST_REGISTRY_FORK:  "no"
+      GST_DEBUG:          "1"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      nats:
+        condition: service_started
+      mongo_cam:
+        condition: service_healthy
+
+  # ── Inference — YOLO fire/smoke detection ─────────────────────
+  inference:
+    image: ghcr.io/sirussnitch/safety-watcher-inference:latest
+    container_name: Inference
+    restart: unless-stopped
+    environment:
+      NATS_URL:   nats://nats:4222
+      MODEL_PATH: /models/best_mlops.onnx
+    volumes:
+      - ./models:/models:ro
+    depends_on:
+      - nats
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  # ── Streamer — detections → WebSocket ─────────────────────────
+  streamer:
+    image: ghcr.io/sirussnitch/safety-watcher-streamer:latest
+    container_name: Streamer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      NATS_URL: nats://nats:4222
+      WS_PORT:  "9000"
+    depends_on:
+      - nats
+
+  # ── History Manager — detection event persistence ─────────────
+  historymanager:
+    image: ghcr.io/sirussnitch/safety-watcher-historymanager:latest
+    command: uvicorn HistoryManager:app --host 0.0.0.0 --port 8003
+    restart: unless-stopped
+    environment:
+      MONGO_URI:              mongodb://mongo_cam:27017
+      NATS_URL:               nats://nats:4222
+      MINIO_ENDPOINT:         minio:9000
+      MINIO_PRESIGN_ENDPOINT: ${MINIO_PRESIGN_ENDPOINT}
+      MINIO_ACCESS_KEY:       ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY:       ${MINIO_SECRET_KEY}
+      MINIO_BUCKET:           ${MINIO_BUCKET}
+      EVENT_WINDOW_SECONDS:   ${EVENT_WINDOW_SECONDS}
+    depends_on:
+      mongo_cam:
+        condition: service_healthy
+      nats:
+        condition: service_started
+      minio:
+        condition: service_healthy
+
+  # ── MinIO — object storage for detection frames ───────────────
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER:     ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  mongo_user_data:
+  mongo_cam_data:
+  minio_data:

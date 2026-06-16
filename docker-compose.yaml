@@ -161,8 +161,6 @@ services:
     image: ghcr.io/sirussnitch/safety-watcher-streamer:latest
     container_name: Streamer
     restart: unless-stopped
-    ports:
-      - "9000:9000"
     environment:
       NATS_URL: nats://nats:4222
       WS_PORT:  "9000"

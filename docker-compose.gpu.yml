@@ -1,0 +1,24 @@
+# ================================================================
+#  Safety Watcher - GPU override
+#
+#  Use this on machines with a supported NVIDIA GPU (driver 470+).
+#  Run via start-gpu.bat, or manually:
+#    docker compose --project-name safetywatcher \
+#      -f docker-compose.yaml \
+#      -f monitoring/docker-compose.monitoring.yml \
+#      -f monitoring/docker-compose.nats-monitor.yml \
+#      -f docker-compose.gpu.yml \
+#      up -d
+# ================================================================
+
+services:
+  inference:
+    environment:
+      USE_GPU: "1"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

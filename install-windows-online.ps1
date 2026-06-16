@@ -1,4 +1,4 @@
-# ================================================================
+﻿# ================================================================
 #  Safety Watcher - Windows Installer (Online)
 #  Automatically detects internet and pulls or loads images.
 # ================================================================
@@ -91,8 +91,10 @@ New-Item -ItemType Directory -Force -Path $DEST | Out-Null
 Copy-Item "$PSScriptRoot\docker-compose.yaml"   $DEST -Force
 Copy-Item "$PSScriptRoot\.env"                  $DEST -Force
 Copy-Item "$PSScriptRoot\seed_admin.js"         $DEST -Force
-Copy-Item "$PSScriptRoot\start.bat"             $DEST -Force
+Copy-Item "$PSScriptRoot\start.bat"              $DEST -Force
+Copy-Item "$PSScriptRoot\start-gpu.bat"         $DEST -Force
 Copy-Item "$PSScriptRoot\stop.bat"              $DEST -Force
+Copy-Item "$PSScriptRoot\docker-compose.gpu.yml" $DEST -Force
 Copy-Item -Recurse "$PSScriptRoot\models"       $DEST -Force
 Copy-Item -Recurse "$PSScriptRoot\monitoring"   $DEST -Force
 Write-Host "  Files copied" -ForegroundColor Green

@@ -75,7 +75,13 @@ Write-Host "  Files copied" -ForegroundColor Green
 # ── Start Services ────────────────────────────────────────────
 Write-Host "[5/6] Starting Safety Watcher..." -ForegroundColor Yellow
 Set-Location $DEST
-docker network create safety-watcher_default 2>&1 | Out-Null
+docker network inspect safety-watcher_default | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    docker network create safety-watcher_default | Out-Null
+    Write-Host "  Network created" -ForegroundColor Green
+} else {
+    Write-Host "  Network already exists" -ForegroundColor Green
+}
 docker compose --project-name safety-watcher `
     -f docker-compose.yaml `
     -f monitoring/docker-compose.monitoring.yml `

@@ -148,13 +148,6 @@ services:
       - ./models:/models:ro
     depends_on:
       - nats
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
 
   # ── Streamer — detections → WebSocket ─────────────────────────
   streamer:

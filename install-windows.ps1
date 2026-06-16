@@ -68,6 +68,8 @@ New-Item -ItemType Directory -Force -Path "$DEST\monitoring" | Out-Null
 Copy-Item "$PSScriptRoot\docker-compose.yaml"   $DEST -Force
 Copy-Item "$PSScriptRoot\.env"                  $DEST -Force
 Copy-Item "$PSScriptRoot\seed_admin.js"         $DEST -Force
+Copy-Item "$PSScriptRoot\start.bat"             $DEST -Force
+Copy-Item "$PSScriptRoot\stop.bat"              $DEST -Force
 Copy-Item -Recurse "$PSScriptRoot\models"       $DEST -Force
 Copy-Item -Recurse "$PSScriptRoot\monitoring"   $DEST -Force
 Write-Host "  Files copied" -ForegroundColor Green

@@ -91,6 +91,8 @@ New-Item -ItemType Directory -Force -Path $DEST | Out-Null
 Copy-Item "$PSScriptRoot\docker-compose.yaml"   $DEST -Force
 Copy-Item "$PSScriptRoot\.env"                  $DEST -Force
 Copy-Item "$PSScriptRoot\seed_admin.js"         $DEST -Force
+Copy-Item "$PSScriptRoot\start.bat"             $DEST -Force
+Copy-Item "$PSScriptRoot\stop.bat"              $DEST -Force
 Copy-Item -Recurse "$PSScriptRoot\models"       $DEST -Force
 Copy-Item -Recurse "$PSScriptRoot\monitoring"   $DEST -Force
 Write-Host "  Files copied" -ForegroundColor Green
@@ -129,6 +131,8 @@ Write-Host "  App:      http://localhost"
 Write-Host "  Grafana:  http://localhost:3000  (admin / admin)"
 Write-Host "  MinIO:    http://localhost:9001  (minioadmin / minioadmin)"
 Write-Host "  Login:    admin / admin"
+Write-Host ""
+Write-Host "  To start/stop: double-click start.bat or stop.bat in C:\SafetyWatcher"
 Write-Host ""
 Write-Host "  NOTE: Set MINIO_PRESIGN_ENDPOINT in .env to this machine's IP"
 Write-Host "        if accessing from other devices on the network."

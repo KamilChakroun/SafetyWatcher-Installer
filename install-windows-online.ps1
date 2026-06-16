@@ -20,8 +20,8 @@ if (-not (Get-Command docker -ErrorAction SilentlyContinue)) {
     Write-Host "Install it from https://www.docker.com/products/docker-desktop/"
     exit 1
 }
-try { docker info 2>&1 | Out-Null }
-catch {
+docker info | Out-Null
+if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: Docker is installed but not running." -ForegroundColor Red
     Write-Host "Start Docker Desktop and wait for it to fully load, then retry."
     exit 1

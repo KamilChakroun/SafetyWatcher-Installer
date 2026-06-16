@@ -142,9 +142,9 @@ services:
     container_name: Inference
     restart: unless-stopped
     environment:
-      NATS_URL:              nats://nats:4222
-      MODEL_PATH:            /models/best_mlops.onnx
-      NVIDIA_VISIBLE_DEVICES: "void"
+      NATS_URL:   nats://nats:4222
+      MODEL_PATH: /models/best_mlops.onnx
+      USE_GPU:    "0"
     volumes:
       - ./models:/models:ro
     depends_on:

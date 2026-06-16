@@ -1,5 +1,5 @@
 # ================================================================
-#  Safety Watcher — Windows Installer (Online / Offline)
+#  Safety Watcher - Windows Installer (Online)
 #  Automatically detects internet and pulls or loads images.
 # ================================================================
 
@@ -9,7 +9,7 @@ $GHCR = "ghcr.io/sirussnitch"
 
 Write-Host ""
 Write-Host "=====================================================" -ForegroundColor Cyan
-Write-Host "  Safety Watcher — Installation" -ForegroundColor Cyan
+Write-Host "  Safety Watcher - Installation" -ForegroundColor Cyan
 Write-Host "=====================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -53,14 +53,8 @@ if (-not $online) {
     exit 1
 }
 
-Write-Host "  Internet available — pulling images from ghcr.io" -ForegroundColor Green
-
-$pat = Read-Host "Enter your GitHub PAT (read:packages scope) — press Enter to skip if already logged in"
-if ($pat -ne "") {
-    $username = Read-Host "Enter your GitHub username"
-    $pat | docker login ghcr.io -u $username --password-stdin
-}
-
+Write-Host "  Internet available - pulling images from ghcr.io" -ForegroundColor Green
+Write-Host "  (Assuming already logged in via: docker login ghcr.io)" -ForegroundColor Yellow
 Write-Host "  Pulling images (takes 5-15 min on first run)..."
 $pullImages = @(
     "$GHCR/safety-watcher-frontend:latest",

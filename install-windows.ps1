@@ -1,5 +1,5 @@
 # ================================================================
-#  Safety Watcher — Windows Installer
+#  Safety Watcher - Windows Installer
 #  Requires: Docker Desktop installed and running, NVIDIA GPU
 # ================================================================
 
@@ -8,7 +8,7 @@ $DEST = "C:\SafetyWatcher"
 
 Write-Host ""
 Write-Host "=====================================================" -ForegroundColor Cyan
-Write-Host "  Safety Watcher — Installation" -ForegroundColor Cyan
+Write-Host "  Safety Watcher - Installation" -ForegroundColor Cyan
 Write-Host "=====================================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -55,7 +55,7 @@ foreach ($img in $images) {
 }
 Write-Host "  All images loaded" -ForegroundColor Green
 
-# gateway and cammanager are identical to usermanager (same Dockerfile) — retag locally
+# gateway and cammanager are identical to usermanager (same Dockerfile) - retag locally
 docker tag ghcr.io/sirussnitch/safety-watcher-usermanager:latest ghcr.io/sirussnitch/safety-watcher-gateway:latest
 docker tag ghcr.io/sirussnitch/safety-watcher-usermanager:latest ghcr.io/sirussnitch/safety-watcher-cammanager:latest
 Write-Host "  gateway and cammanager tagged" -ForegroundColor Green

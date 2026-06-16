@@ -31,9 +31,8 @@ Write-Host "  Docker OK" -ForegroundColor Green
 # ── Check NVIDIA GPU ──────────────────────────────────────────
 Write-Host "[2/6] Checking NVIDIA GPU..." -ForegroundColor Yellow
 if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) {
-    Write-Host "WARNING: nvidia-smi not found. Inference requires an NVIDIA GPU." -ForegroundColor Red
-    $confirm = Read-Host "Continue anyway? (y/N)"
-    if ($confirm -ne "y") { exit 1 }
+    Write-Host "WARNING: nvidia-smi not found. GPU inference may not work." -ForegroundColor Yellow
+    Write-Host "  Continuing installation..." -ForegroundColor Yellow
 } else {
     $gpuInfo = nvidia-smi --query-gpu=name --format=csv,noheader 2>$null
     Write-Host "  GPU: $gpuInfo" -ForegroundColor Green

@@ -57,14 +57,14 @@ Write-Host "  Internet available - pulling images from ghcr.io" -ForegroundColor
 Write-Host "  (Assuming already logged in via: docker login ghcr.io)" -ForegroundColor Yellow
 Write-Host "  Pulling images (takes 5-15 min on first run)..."
 $pullImages = @(
-    "$GHCR/safety-watcher-frontend:latest",
-    "$GHCR/safety-watcher-gateway:latest",
-    "$GHCR/safety-watcher-usermanager:latest",
-    "$GHCR/safety-watcher-cammanager:latest",
-    "$GHCR/safety-watcher-inference:latest",
-    "$GHCR/safety-watcher-reader:latest",
-    "$GHCR/safety-watcher-streamer:latest",
-    "$GHCR/safety-watcher-historymanager:latest",
+    "$GHCR/safetywatcher-frontend:latest",
+    "$GHCR/safetywatcher-gateway:latest",
+    "$GHCR/safetywatcher-usermanager:latest",
+    "$GHCR/safetywatcher-cammanager:latest",
+    "$GHCR/safetywatcher-inference:latest",
+    "$GHCR/safetywatcher-reader:latest",
+    "$GHCR/safetywatcher-streamer:latest",
+    "$GHCR/safetywatcher-historymanager:latest",
     "mongo:8",
     "nats:latest",
     "minio/minio:latest",
@@ -100,14 +100,14 @@ Write-Host "  Files copied" -ForegroundColor Green
 # ── Start Services ────────────────────────────────────────────
 Write-Host "[5/6] Starting Safety Watcher..." -ForegroundColor Yellow
 Set-Location $DEST
-docker network inspect safety-watcher_default | Out-Null
+docker network inspect safetywatcher_default | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    docker network create safety-watcher_default | Out-Null
+    docker network create safetywatcher_default | Out-Null
     Write-Host "  Network created" -ForegroundColor Green
 } else {
     Write-Host "  Network already exists" -ForegroundColor Green
 }
-docker compose --project-name safety-watcher `
+docker compose --project-name safetywatcher `
     -f docker-compose.yaml `
     -f monitoring/docker-compose.monitoring.yml `
     -f monitoring/docker-compose.nats-monitor.yml `
@@ -118,8 +118,8 @@ Write-Host "  Services started" -ForegroundColor Green
 Write-Host "[6/6] Creating admin user..." -ForegroundColor Yellow
 Write-Host "  Waiting 20 seconds for MongoDB..."
 Start-Sleep -Seconds 20
-docker cp seed_admin.js safety-watcher-mongo_user-1:/seed_admin.js
-docker exec safety-watcher-mongo_user-1 mongosh /seed_admin.js
+docker cp seed_admin.js safetywatcher-mongo_user-1:/seed_admin.js
+docker exec safetywatcher-mongo_user-1 mongosh /seed_admin.js
 
 # ── Done ──────────────────────────────────────────────────────
 Write-Host ""

@@ -1,7 +1,7 @@
 @echo off
 cd /d "%~dp0"
 echo Stopping Safety Watcher...
-docker compose --project-name safety-watcher -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml down
+docker compose --project-name safetywatcher -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml down
 if %ERRORLEVEL% neq 0 (
     echo.
     echo Failed to stop. Check that Docker Desktop is running.

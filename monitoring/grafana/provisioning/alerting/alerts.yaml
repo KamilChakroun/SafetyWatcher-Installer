@@ -25,7 +25,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: >
-                absent(container_last_seen{name="safety-watcher-gateway-1"})
+                absent(container_last_seen{name="safetywatcher-gateway-1"})
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
@@ -113,7 +113,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: >
-                absent(container_last_seen{name="safety-watcher-historymanager-1"})
+                absent(container_last_seen{name="safetywatcher-historymanager-1"})
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200
@@ -135,7 +135,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: >
-                absent(container_last_seen{name="safety-watcher-minio-1"})
+                absent(container_last_seen{name="safetywatcher-minio-1"})
               instant: true
               intervalMs: 1000
               maxDataPoints: 43200

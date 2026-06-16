@@ -138,5 +138,5 @@ volumes:
 
 networks:
   default:
-    name: safety-watcher_default
+    name: safetywatcher_default
     external: true

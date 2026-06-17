@@ -115,7 +115,6 @@ echo -e "  ${GREEN}Files copied${NC}"
 # ── Start Services ────────────────────────────────────────────
 echo -e "${YELLOW}[5/6] Starting Safety Watcher...${NC}"
 cd "$DEST"
-docker network create safety-watcher_default 2>/dev/null || true
 sudo -u $REAL_USER docker compose \
     -f docker-compose.yaml \
     -f monitoring/docker-compose.monitoring.yml \

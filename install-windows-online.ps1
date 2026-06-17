@@ -40,11 +40,7 @@ if (-not (Get-Command nvidia-smi -ErrorAction SilentlyContinue)) {
 
 # ── Detect Internet ───────────────────────────────────────────
 Write-Host "[3/6] Detecting internet connectivity..." -ForegroundColor Yellow
-$online = $false
-try {
-    $response = Invoke-WebRequest -Uri "https://ghcr.io" -TimeoutSec 5 -UseBasicParsing
-    $online = $true
-} catch {}
+$online = (Test-NetConnection -ComputerName "ghcr.io" -Port 443 -WarningAction SilentlyContinue).TcpTestSucceeded
 
 if (-not $online) {
     Write-Host "ERROR: No internet connection detected." -ForegroundColor Red

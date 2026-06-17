@@ -138,4 +138,4 @@ volumes:
 
 networks:
   default:
-    name: safetywatcher_default
+    name: safety-watcher_default

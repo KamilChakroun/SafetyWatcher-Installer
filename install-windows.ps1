@@ -4,7 +4,7 @@
 # ================================================================
 
 $ErrorActionPreference = "Stop"
-$DEST = "C:\SafetyWatcher"
+$DEST = "C:\Safety-Watcher"
 
 Write-Host ""
 Write-Host "=====================================================" -ForegroundColor Cyan
@@ -56,8 +56,8 @@ foreach ($img in $images) {
 Write-Host "  All images loaded" -ForegroundColor Green
 
 # gateway and cammanager are identical to usermanager (same Dockerfile) - retag locally
-docker tag ghcr.io/sirussnitch/safetywatcher-usermanager:latest ghcr.io/sirussnitch/safetywatcher-gateway:latest
-docker tag ghcr.io/sirussnitch/safetywatcher-usermanager:latest ghcr.io/sirussnitch/safetywatcher-cammanager:latest
+docker tag ghcr.io/sirussnitch/safety-watcher-usermanager:latest ghcr.io/sirussnitch/safety-watcher-gateway:latest
+docker tag ghcr.io/sirussnitch/safety-watcher-usermanager:latest ghcr.io/sirussnitch/safety-watcher-cammanager:latest
 Write-Host "  gateway and cammanager tagged" -ForegroundColor Green
 
 # ── Copy Project Files ────────────────────────────────────────
@@ -79,14 +79,14 @@ Write-Host "  Files copied" -ForegroundColor Green
 # ── Start Services ────────────────────────────────────────────
 Write-Host "[5/6] Starting Safety Watcher..." -ForegroundColor Yellow
 Set-Location $DEST
-docker network inspect safetywatcher_default | Out-Null
+docker network inspect safety-watcher_default | Out-Null
 if ($LASTEXITCODE -ne 0) {
-    docker network create safetywatcher_default | Out-Null
+    docker network create safety-watcher_default | Out-Null
     Write-Host "  Network created" -ForegroundColor Green
 } else {
     Write-Host "  Network already exists" -ForegroundColor Green
 }
-docker compose --project-name safetywatcher `
+docker compose `
     -f docker-compose.yaml `
     -f monitoring/docker-compose.monitoring.yml `
     -f monitoring/docker-compose.nats-monitor.yml `
@@ -94,7 +94,7 @@ docker compose --project-name safetywatcher `
 
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: docker compose failed to start." -ForegroundColor Red
-    Write-Host "Run: docker compose --project-name safetywatcher logs"
+    Write-Host "Run: docker compose logs"
     exit 1
 }
 Write-Host "  Services started" -ForegroundColor Green
@@ -103,8 +103,8 @@ Write-Host "  Services started" -ForegroundColor Green
 Write-Host "[6/6] Creating admin user..." -ForegroundColor Yellow
 Write-Host "  Waiting 20 seconds for MongoDB to be ready..."
 Start-Sleep -Seconds 20
-docker cp seed_admin.js safetywatcher-mongo_user-1:/seed_admin.js
-docker exec safetywatcher-mongo_user-1 mongosh /seed_admin.js
+docker cp seed_admin.js safety-watcher-mongo_user-1:/seed_admin.js
+docker exec safety-watcher-mongo_user-1 mongosh /seed_admin.js
 
 # ── Done ──────────────────────────────────────────────────────
 Write-Host ""
@@ -117,8 +117,8 @@ Write-Host "  Grafana:   http://localhost:3000  (admin / admin)"
 Write-Host "  MinIO:     http://localhost:9001  (minioadmin / minioadmin)"
 Write-Host "  Login:     admin / admin"
 Write-Host ""
-Write-Host "  To stop:   docker compose --project-name safetywatcher -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml down"
-Write-Host "  To start:  docker compose --project-name safetywatcher -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml up -d"
+Write-Host "  To start/stop: double-click start.bat or stop.bat in C:\Safety-Watcher"
+
 Write-Host ""
 Write-Host "  NOTE: Set MINIO_PRESIGN_ENDPOINT in .env to this machine's IP"
 Write-Host "        if accessing from other devices on the network."

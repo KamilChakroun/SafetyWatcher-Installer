@@ -1,11 +1,11 @@
-#!/bin/bash
+﻿#!/bin/bash
 # ================================================================
 #  Safety Watcher — Linux (Ubuntu) Installer
 #  Requires: Ubuntu 20.04/22.04/24.04, NVIDIA GPU + driver
 # ================================================================
 
 set -e
-DEST="/opt/safetywatcher"
+DEST="/opt/safety-watcher"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 RED='\033[0;31m'
@@ -108,6 +108,7 @@ cp "$SCRIPT_DIR/.env"                 "$DEST/"
 cp "$SCRIPT_DIR/seed_admin.js"        "$DEST/"
 cp -r "$SCRIPT_DIR/models"            "$DEST/"
 cp -r "$SCRIPT_DIR/monitoring"        "$DEST/"
+cp "$SCRIPT_DIR/docker-compose.gpu.yml" "$DEST/"
 chown -R $REAL_USER:$REAL_USER "$DEST"
 echo -e "  ${GREEN}Files copied${NC}"
 
@@ -115,7 +116,7 @@ echo -e "  ${GREEN}Files copied${NC}"
 echo -e "${YELLOW}[5/6] Starting Safety Watcher...${NC}"
 cd "$DEST"
 docker network create safety-watcher_default 2>/dev/null || true
-sudo -u $REAL_USER docker compose --project-name safety-watcher \
+sudo -u $REAL_USER docker compose \
     -f docker-compose.yaml \
     -f monitoring/docker-compose.monitoring.yml \
     -f monitoring/docker-compose.nats-monitor.yml \
@@ -131,7 +132,7 @@ docker cp seed_admin.js safety-watcher-mongo_user-1:/seed_admin.js
 docker exec safety-watcher-mongo_user-1 mongosh /seed_admin.js
 
 # ── Create systemd service for auto-start on boot ─────────────
-cat > /etc/systemd/system/safetywatcher.service << SVCEOF
+cat > /etc/systemd/system/safety-watcher.service << SVCEOF
 [Unit]
 Description=Safety Watcher
 Requires=docker.service
@@ -141,8 +142,8 @@ After=docker.service network-online.target
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=$DEST
-ExecStart=/usr/bin/docker compose --project-name safety-watcher -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml up -d
-ExecStop=/usr/bin/docker compose --project-name safety-watcher -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml down
+ExecStart=/usr/bin/docker compose -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.yaml -f monitoring/docker-compose.monitoring.yml -f monitoring/docker-compose.nats-monitor.yml down
 User=$REAL_USER
 
 [Install]
@@ -150,7 +151,7 @@ WantedBy=multi-user.target
 SVCEOF
 
 systemctl daemon-reload
-systemctl enable safetywatcher
+systemctl enable safety-watcher
 echo -e "  ${GREEN}Auto-start on boot enabled${NC}"
 
 # ── Done ──────────────────────────────────────────────────────
@@ -164,9 +165,9 @@ echo "  Grafana:   http://localhost:3000  (admin / admin)"
 echo "  MinIO:     http://localhost:9001  (minioadmin / minioadmin)"
 echo "  Login:     admin / admin"
 echo ""
-echo "  To stop:   sudo systemctl stop safetywatcher"
-echo "  To start:  sudo systemctl start safetywatcher"
-echo "  To status: sudo systemctl status safetywatcher"
+echo "  To stop:   sudo systemctl stop safety-watcher"
+echo "  To start:  sudo systemctl start safety-watcher"
+echo "  To status: sudo systemctl status safety-watcher"
 echo ""
 echo "  NOTE: Set MINIO_PRESIGN_ENDPOINT in $DEST/.env to this"
 echo "        machine's IP if accessing from other devices."

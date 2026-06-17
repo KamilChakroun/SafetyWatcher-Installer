@@ -269,7 +269,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "increase(container_start_time_seconds{name=~\"(gateway|Reader|Inference|Streamer|safetywatcher-.*)\"}[1h])",
+          "expr": "increase(container_start_time_seconds{name=~\"(gateway|Reader|Inference|Streamer|safety-watcher-.*)\"}[1h])",
           "legendFormat": "{{name}}"
         }
       ]
@@ -362,7 +362,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "rate(container_cpu_usage_seconds_total{name=~\"(safetywatcher-gateway-1|safetywatcher-frontend-1|safetywatcher-usermanager-1|safetywatcher-cammanager-1|Reader|Inference|Streamer|nats)\"}[1m]) * 100",
+          "expr": "rate(container_cpu_usage_seconds_total{name=~\"(safety-watcher-gateway-1|safety-watcher-frontend-1|safety-watcher-usermanager-1|safety-watcher-cammanager-1|Reader|Inference|Streamer|nats)\"}[1m]) * 100",
           "legendFormat": "{{name}}"
         }
       ]
@@ -400,7 +400,7 @@
             "type": "prometheus",
             "uid": "PBFA97CFB590B2093"
           },
-          "expr": "container_memory_usage_bytes{name=~\"(safetywatcher-gateway-1|safetywatcher-frontend-1|safetywatcher-usermanager-1|safetywatcher-cammanager-1|Reader|Inference|Streamer|nats)\"} / 1024 / 1024",
+          "expr": "container_memory_usage_bytes{name=~\"(safety-watcher-gateway-1|safety-watcher-frontend-1|safety-watcher-usermanager-1|safety-watcher-cammanager-1|Reader|Inference|Streamer|nats)\"} / 1024 / 1024",
           "legendFormat": "{{name}}"
         }
       ]

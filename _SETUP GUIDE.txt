@@ -4,7 +4,7 @@ ________________________________________________________________________________
 __________________________________________________________________________________________________
 
 __________________________________________________________________________________________________
-==2== CONNECT WITH THE PAT (REPLACE WITH WHATSAPP COMMAND IN "new github token.txt")
+==2== CONNECT WITH THE PAT (REPLACE WITH COMMAND IN "new github token.txt" FROM WHATSAPP GROUP)
 __________________________________________________________________________________________________
 
 echo PAT | docker login ghcr.io -u KamilChakroun --password-stdin

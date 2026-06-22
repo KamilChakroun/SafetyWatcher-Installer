@@ -80,7 +80,7 @@ services:
 
   # ── MongoDB — users ───────────────────────────────────────────
   mongo_user:
-    image: mongo:8
+    image: safety-watcher-mongo:8
     restart: unless-stopped
     volumes:
       - mongo_user_data:/data/db
@@ -93,7 +93,7 @@ services:
 
   # ── MongoDB — cameras ─────────────────────────────────────────
   mongo_cam:
-    image: mongo:8
+    image: safety-watcher-mongo:8
     restart: unless-stopped
     volumes:
       - mongo_cam_data:/data/db
@@ -106,7 +106,7 @@ services:
 
   # ── NATS — message broker ─────────────────────────────────────
   nats:
-    image: nats:latest
+    image: safety-watcher-nats:latest
     container_name: nats
     restart: unless-stopped
     ports:
@@ -185,7 +185,7 @@ services:
 
   # ── MinIO — object storage for detection frames ───────────────
   minio:
-    image: minio/minio:latest
+    image: safety-watcher-minio:latest
     restart: unless-stopped
     command: server /data --console-address ":9001"
     ports:

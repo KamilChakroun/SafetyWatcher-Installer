@@ -81,6 +81,22 @@ foreach ($img in $pullImages) {
 }
 Write-Host "  Images ready" -ForegroundColor Green
 
+# Retag third-party infrastructure images with project prefix
+docker tag mongo:8 safety-watcher-mongo:8
+docker tag nats:latest safety-watcher-nats:latest
+docker tag minio/minio:latest safety-watcher-minio:latest
+docker tag prom/prometheus:latest safety-watcher-prometheus:latest
+docker tag grafana/grafana:latest safety-watcher-grafana:latest
+docker tag grafana/loki:latest safety-watcher-loki:latest
+docker tag grafana/promtail:latest safety-watcher-promtail:latest
+docker tag gcr.io/cadvisor/cadvisor:latest safety-watcher-cadvisor:latest
+docker tag natsio/prometheus-nats-exporter:latest safety-watcher-nats-exporter:latest
+docker image inspect utkuozdemir/nvidia_gpu_exporter:latest | Out-Null
+if ($LASTEXITCODE -eq 0) {
+    docker tag utkuozdemir/nvidia_gpu_exporter:latest safety-watcher-nvidia-exporter:latest
+}
+Write-Host "  Infrastructure images retagged" -ForegroundColor Green
+
 # ── Copy Project Files ────────────────────────────────────────
 Write-Host "[4/6] Installing files to $DEST..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Force -Path $DEST | Out-Null

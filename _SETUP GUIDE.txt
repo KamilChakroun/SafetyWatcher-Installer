@@ -4,10 +4,10 @@ ________________________________________________________________________________
 __________________________________________________________________________________________________
 
 __________________________________________________________________________________________________
-==2== CONNECT WITH THE PAT
+==2== CONNECT WITH THE PAT (REPLACE WITH WHATSAPP COMMAND IN "new github token.txt")
 __________________________________________________________________________________________________
 
-echo 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 | docker login ghcr.io -u KamilChakroun --password-stdin
+echo PAT | docker login ghcr.io -u KamilChakroun --password-stdin
 __________________________________________________________________________________________________
 
 
@@ -54,7 +54,7 @@ ________________________________________________________________________________
 
 
 __________________________________________________________________________________________________
-==5== RUN THE INSTALLER SCRIPT (ONLINE VERSION IF YOU DON'T HAVE .tar FILES INSIDE "SafetyWatcher-Installer/images"
+==5== RUN THE INSTALLER SCRIPT (ONLINE VERSION IF YOU DON'T HAVE .tar FILES INSIDE "SafetyWatcher-Installer/images")
 __________________________________________________________________________________________________
 
 ONLINE:

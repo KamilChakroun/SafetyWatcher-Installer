@@ -1,0 +1,91 @@
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+CONNECT WITH THIS PAT
+__________________________________________________________________________________________________
+
+
+echo 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 | docker login ghcr.io -u KamilChakroun --password-stdin
+
+docker logout ghcr.io
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+# CREATE SECRET KEY for .env
+__________________________________________________________________________________________________
+
+python -c "import secrets; print(secrets.token_hex(32))"
+
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+CREATE .ENV
+__________________________________________________________________________________________________
+
+# Frontend
+VITE_WS_URL=ws://localhost/ws
+
+STREAMER_URLS=ws://streamer:9000
+
+# Auth
+SECRET_KEY=
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=480
+
+# CORS
+ALLOWED_ORIGINS=http://localhost
+
+# Metrics
+METRICS_TOKEN=
+
+# Camera database
+MONGO_CAM_DB=surveillance
+MONGO_CAM_COLL=cameras
+
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=safety-watcher-history
+MINIO_PRESIGN_ENDPOINT=localhost:9000
+
+EVENT_WINDOW_SECONDS=120
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+RUN THE INSTALLER SCRIPT
+__________________________________________________________________________________________________
+
+
+ONLINE:
+powershell -ExecutionPolicy Bypass -File install-windows-online.ps1
+
+OFFLINE:
+powershell -ExecutionPolicy Bypass -File install-windows.ps1
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+# SEED ADMIN:
+docker cp seed_admin.js safety-watcher-mongo_user-1:/seed_admin.js
+docker exec -it safety-watcher-mongo_user-1 mongosh /seed_admin.js
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+# GET JWT TOKEN: (IGNORE FOR NOW)
+localStorage.getItem('sw_token')
+
+ws://localhost/ws
+__________________________________________________________________________________________________
+__________________________________________________________________________________________________
+RUN THE PROJECT / CLOSE PROJECT / PULL CHANGES
+__________________________________________________________________________________________________
+
+
+docker compose -f docker-compose.yaml `
+               -f monitoring/docker-compose.monitoring.yml `
+               -f monitoring/docker-compose.nats-monitor.yml `
+               up -d
+
+
+docker compose -f docker-compose.yaml `
+               -f monitoring/docker-compose.monitoring.yml `
+               -f monitoring/docker-compose.nats-monitor.yml `
+               down
+
+
+docker compose -f docker-compose.yaml `
+               -f monitoring/docker-compose.monitoring.yml `
+               -f monitoring/docker-compose.nats-monitor.yml `
+               pull

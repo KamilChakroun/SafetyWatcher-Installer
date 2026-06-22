@@ -111,20 +111,6 @@ for img in "${PULL_IMAGES[@]}"; do
 done
 echo -e "  ${GREEN}Images ready${NC}"
 
-# Retag third-party infrastructure images with project prefix
-docker tag mongo:8 safety-watcher-mongo:8
-docker tag nats:latest safety-watcher-nats:latest
-docker tag minio/minio:latest safety-watcher-minio:latest
-docker tag prom/prometheus:latest safety-watcher-prometheus:latest
-docker tag grafana/grafana:latest safety-watcher-grafana:latest
-docker tag grafana/loki:latest safety-watcher-loki:latest
-docker tag grafana/promtail:latest safety-watcher-promtail:latest
-docker tag gcr.io/cadvisor/cadvisor:latest safety-watcher-cadvisor:latest
-docker tag natsio/prometheus-nats-exporter:latest safety-watcher-nats-exporter:latest
-docker image inspect utkuozdemir/nvidia_gpu_exporter:latest &>/dev/null && \
-    docker tag utkuozdemir/nvidia_gpu_exporter:latest safety-watcher-nvidia-exporter:latest || true
-echo -e "  ${GREEN}Infrastructure images retagged${NC}"
-
 # ── Copy Project Files ────────────────────────────────────────
 echo -e "${YELLOW}[4/6] Installing files to $DEST...${NC}"
 mkdir -p "$DEST"

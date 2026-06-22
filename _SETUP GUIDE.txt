@@ -1,22 +1,26 @@
 __________________________________________________________________________________________________
 __________________________________________________________________________________________________
-CONNECT WITH THIS PAT
+==1== OPEN TERMINAL/POWERSHELL INSIDE "SafetyWatcher-Installer"
 __________________________________________________________________________________________________
 
+__________________________________________________________________________________________________
+==2== CONNECT WITH THE PAT
+__________________________________________________________________________________________________
 
 echo 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 | docker login ghcr.io -u KamilChakroun --password-stdin
+__________________________________________________________________________________________________
 
-docker logout ghcr.io
+
 __________________________________________________________________________________________________
-__________________________________________________________________________________________________
-# CREATE SECRET KEY for .env
+==3== CREATE SECRET KEY for .env
 __________________________________________________________________________________________________
 
 python -c "import secrets; print(secrets.token_hex(32))"
+__________________________________________________________________________________________________
+
 
 __________________________________________________________________________________________________
-__________________________________________________________________________________________________
-CREATE .ENV
+==4==CREATE .ENV FILE INSIDE "SafetyWatcher-Installer" FOLDER AND PASTE THE GENERATED SECRET KEY
 __________________________________________________________________________________________________
 
 # Frontend
@@ -25,20 +29,21 @@ VITE_WS_URL=ws://localhost/ws
 STREAMER_URLS=ws://streamer:9000
 
 # Auth
-SECRET_KEY=
+SECRET_KEY= PASTE-SECRET-KEY-HERE
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=480
 
 # CORS
 ALLOWED_ORIGINS=http://localhost
 
-# Metrics
+# Metrics (Leave empty for now)
 METRICS_TOKEN=
 
 # Camera database
 MONGO_CAM_DB=surveillance
 MONGO_CAM_COLL=cameras
 
+# Minio DB (change access key & secret key to whatever you like)
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=minioadmin
 MINIO_BUCKET=safety-watcher-history
@@ -46,30 +51,31 @@ MINIO_PRESIGN_ENDPOINT=localhost:9000
 
 EVENT_WINDOW_SECONDS=120
 __________________________________________________________________________________________________
-__________________________________________________________________________________________________
-RUN THE INSTALLER SCRIPT
-__________________________________________________________________________________________________
 
+
+__________________________________________________________________________________________________
+==5== RUN THE INSTALLER SCRIPT (ONLINE VERSION IF YOU DON'T HAVE .tar FILES INSIDE "SafetyWatcher-Installer/images"
+__________________________________________________________________________________________________
 
 ONLINE:
 powershell -ExecutionPolicy Bypass -File install-windows-online.ps1
 
 OFFLINE:
 powershell -ExecutionPolicy Bypass -File install-windows.ps1
+
 __________________________________________________________________________________________________
+
+
 __________________________________________________________________________________________________
-# SEED ADMIN:
+==6== SEED ADMIN (you need this to login using [admin / admin] credentials)
+__________________________________________________________________________________________________
 docker cp seed_admin.js safety-watcher-mongo_user-1:/seed_admin.js
 docker exec -it safety-watcher-mongo_user-1 mongosh /seed_admin.js
 __________________________________________________________________________________________________
-__________________________________________________________________________________________________
-# GET JWT TOKEN: (IGNORE FOR NOW)
-localStorage.getItem('sw_token')
 
-ws://localhost/ws
+
 __________________________________________________________________________________________________
-__________________________________________________________________________________________________
-RUN THE PROJECT / CLOSE PROJECT / PULL CHANGES
+==7== RUN PROJECT / CLOSE PROJECT / PULL CHANGES
 __________________________________________________________________________________________________
 
 
@@ -89,3 +95,4 @@ docker compose -f docker-compose.yaml `
                -f monitoring/docker-compose.monitoring.yml `
                -f monitoring/docker-compose.nats-monitor.yml `
                pull
+__________________________________________________________________________________________________
